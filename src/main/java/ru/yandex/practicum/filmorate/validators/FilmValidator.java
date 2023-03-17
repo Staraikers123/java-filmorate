@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.validators;
 
-import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.ValidationException;
 import java.time.LocalDate;
 import java.time.Month;
 
