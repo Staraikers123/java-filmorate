@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private int id = 0;
+    private int id = 1;
     private final HashMap<Integer, Film> saveFilmStorage = new HashMap<>();
 
     @PostMapping

@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private int id = 0;
+    private int id = 1;
     private final HashMap<Integer, User> saveUserStorage = new HashMap<>();
 
     @PostMapping
