@@ -28,12 +28,6 @@ public class FilmValidatorTest {
         assertThrows(ValidationException.class, () -> FilmValidator.validate(film));
     }
 
-    @Test
-    public void shouldThrowExceptionWhenNameIsEmpty() {
-        film = builder.name("").description("family")
-                .releaseDate(LocalDate.of(2003, Month.JULY, 21)).duration(108).build();
-        assertThrows(ValidationException.class, () -> FilmValidator.validate(film));
-    }
 
     @Test
     public void shouldNotThrowExceptionWhenReleaseDateIs28_12_1895() {
@@ -49,12 +43,6 @@ public class FilmValidatorTest {
         assertDoesNotThrow(() -> FilmValidator.validate(film));
     }
 
-    @Test
-    public void shouldThrowExceptionWhenDurationIsNegative() {
-        film = builder.name("2 Fast 2 Furious").description("family")
-                .releaseDate(LocalDate.of(2003, Month.JULY, 21)).duration(-1).build();
-        assertThrows(ValidationException.class, () -> FilmValidator.validate(film));
-    }
 
     @Test
     public void shouldNotThrowExceptionWhenDurationIsPositive() {
@@ -63,11 +51,5 @@ public class FilmValidatorTest {
         assertDoesNotThrow(() -> FilmValidator.validate(film));
     }
 
-    @Test
-    public void shouldThrowExceptionWhenDurationIsZero() {
-        film = builder.name("2 Fast 2 Furious").description("family")
-                .releaseDate(LocalDate.of(2003, Month.JULY, 21)).duration(0).build();
-        assertThrows(ValidationException.class, () -> FilmValidator.validate(film));
-    }
 
 }

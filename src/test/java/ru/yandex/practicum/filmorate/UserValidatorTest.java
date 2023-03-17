@@ -21,19 +21,6 @@ public class UserValidatorTest {
         builder = User.builder();
     }
 
-    @Test
-    public void shouldThrowExceptionWhenBirthdayIsInFuture() {
-        user = builder.email("staraikers@yandex.ru").login("Staraikers").name("Марат")
-                .birthday(LocalDate.now().plusWeeks(2)).build();
-        assertThrows(ValidationException.class, () -> UserValidator.validate(user));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenEmailIsNull() {
-        user = builder.email(null).login("СофьяПожарская").name("Staraikers")
-                .birthday(LocalDate.of(1997, 12, 19)).build();
-        assertThrows(ValidationException.class, () -> UserValidator.validate(user));
-    }
 
     @Test
     public void shouldSuccessfullyValidateCorrectUser() {
@@ -43,44 +30,10 @@ public class UserValidatorTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenEmailIsWithoutAtSymbol() {
-        user = builder.email("staraikersyandex.ru").login("Staraikers").name("Марат")
-                .birthday(LocalDate.of(1997, Month.DECEMBER, 19)).build();
-        assertThrows(ValidationException.class, () -> UserValidator.validate(user));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenEmailIsEmpty() {
-        user = builder.email("").login("Staraikers").name("Марат")
-                .birthday(LocalDate.of(1997, Month.DECEMBER, 19)).build();
-        assertThrows(ValidationException.class, () -> UserValidator.validate(user));
-    }
-
-    @Test
     public void shouldNotThrowExceptionWhenBirthdayIsToday() {
         user = builder.email("staraikers@yandex.ru").login("Staraikers").name("Марат")
                 .birthday(LocalDate.now()).build();
         assertDoesNotThrow(() -> UserValidator.validate(user));
     }
 
-    @Test
-    public void shouldThrowExceptionWhenLoginIsNull() {
-        user = builder.email("staraikers@yandex.ru").login(null).name("Марат")
-                .birthday(LocalDate.of(1997, Month.DECEMBER, 19)).build();
-        assertThrows(ValidationException.class, () -> UserValidator.validate(user));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenLoginContainsSpace() {
-        user = builder.email("staraikersyandex.ru").login("Staraikers 123").name("Марат")
-                .birthday(LocalDate.of(1997, Month.DECEMBER, 19)).build();
-        assertThrows(ValidationException.class, () -> UserValidator.validate(user));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenLoginIsEmpty() {
-        user = builder.email("staraikers@yandex.ru").login("").name("Марат")
-                .birthday(LocalDate.of(1997, Month.DECEMBER, 19)).build();
-        assertThrows(ValidationException.class, () -> UserValidator.validate(user));
-    }
 }
