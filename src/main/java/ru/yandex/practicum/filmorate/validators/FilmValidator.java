@@ -12,9 +12,9 @@ public class FilmValidator {
     private static final LocalDate FILM_REALISE_DATE = LocalDate.of(1895, Month.DECEMBER, 28);
 
     public static boolean validate(Film film) throws ValidationException {
-        if (film.getName() == null || film.getName().equals("")) {
-            log.error("Пустое название фильма");
-            throw new ValidationException("Пустое название фильма");
+        if (film.getReleaseDate().isBefore(FILM_REALISE_DATE)) {
+            log.info("Дата фильма должна быть не позже 28.12.1895");
+            throw new ValidationException("Дата фильма должна быть не позже 28.12.1895");
         }
         return false;
     }

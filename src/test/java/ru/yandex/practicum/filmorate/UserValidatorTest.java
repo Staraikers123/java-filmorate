@@ -29,6 +29,7 @@ public class UserValidatorTest {
         assertDoesNotThrow(() -> UserValidator.validate(user));
     }
 
+
     @Test
     public void shouldNotThrowExceptionWhenBirthdayIsToday() {
         user = builder.email("staraikers@yandex.ru").login("Staraikers").name("Марат")
