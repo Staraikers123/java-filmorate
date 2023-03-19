@@ -8,7 +8,9 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Builder
 @Data
@@ -25,4 +27,6 @@ public class User {
 
     @Past
     private LocalDate birthday;
+
+    private Set<Integer> friends;
 }
