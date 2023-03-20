@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping
     public User add(@Valid @RequestBody User user) throws ValidationException {
-        return userStorage.add(user);
+        return userService.createUser(user);
     }
 
     @PutMapping
@@ -41,15 +41,11 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable int id, @PathVariable int friendId) {
-        userStorage.getUser(id);
-        userStorage.getUser(friendId);
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
-        userStorage.getUser(id);
-        userStorage.getUser(friendId);
         userService.deleteFriend(id, friendId);
     }
 

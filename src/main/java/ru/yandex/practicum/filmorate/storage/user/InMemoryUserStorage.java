@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.ValidationException;
 import java.util.ArrayList;
@@ -20,8 +19,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User add(User user) {
-        if (saveUserStorage.values().stream().noneMatch(saveUser -> saveUser.getLogin().equals(user.getLogin()))) {
-            UserService.validate(user);
+        if (saveUserStorage.values().stream()
+                .noneMatch(saveUser -> saveUser.getLogin().equals(user.getLogin()))) {
             user.setId(id++);
             user.setFriends(new HashSet<>());
             saveUserStorage.put(user.getId(), user);

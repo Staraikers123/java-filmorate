@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,11 +20,18 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+    public User createUser(User user) {
+        validate(user);
+        log.info("Пользователь '{}' успешно прошел валидацию", user.getName());
+        return userStorage.add(user);
+    }
+
     public void addFriend(int userId, int friendId) {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
         user.addFriendToUser(friendId);
         friend.addFriendToUser(userId);
+        log.info("Друг для пользователя '{}' успешно добавлен", user.getName());
     }
 
     public void deleteFriend(int userId, int friendId) {
@@ -33,6 +39,7 @@ public class UserService {
         User friend = userStorage.getUser(friendId);
         friend.removeFriendFromUser(userId);
         user.removeFriendFromUser(friendId);
+        log.info("Друг для пользователя '{}' успешно удален", user.getName());
     }
 
     public List<User> getMutualFriends(int userId, int friendId) {
@@ -44,16 +51,18 @@ public class UserService {
                 mutualFriends.add(userStorage.getUser(id));
             }
         }
+        log.info("Общие друзья для пользователя '{}' успешно обновлены", user.getName());
         return mutualFriends;
     }
 
     public List<User> getUserFriends(int userId) {
+        log.debug("Друзья для пользователя '{}' получены", userStorage.getUser(userId).getName());
         return userStorage.findAllUsers().stream()
                 .filter(user -> user.getFriends().contains(userId))
                 .collect(Collectors.toList());
     }
 
-    public static void validate(User user) throws ValidationException {
+    private static void validate(User user) {
         if (user.getName() == null || user.getName().equals("")) {
             log.info("Имя для отображения может быть пустым - в таком случае будет использован логин");
             user.setName(user.getLogin());

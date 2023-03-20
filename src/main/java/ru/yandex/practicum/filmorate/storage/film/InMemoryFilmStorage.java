@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import javax.validation.ValidationException;
 import java.util.ArrayList;
@@ -21,8 +20,8 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film add(Film film) {
-        FilmService.validate(film);
-        if (saveFilmStorage.values().stream().noneMatch((saveFilm -> saveFilm.getName().equals(film.getName())))) {
+        if (saveFilmStorage.values().stream()
+                .noneMatch((saveFilm -> saveFilm.getName().equals(film.getName())))) {
             film.setId(id++);
             film.setLikes(new HashSet<>());
             saveFilmStorage.put(film.getId(), film);

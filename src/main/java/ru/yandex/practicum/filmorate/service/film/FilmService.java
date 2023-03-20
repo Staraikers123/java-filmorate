@@ -24,31 +24,42 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
+    public Film createFilm(Film film) {
+        validate(film);
+        log.info("Фильм '{}' успешно прошел валидацию", film.getName());
+        return filmStorage.add(film);
+    }
+
     public void putALike(int filmId, int userId) {
         Film film = filmStorage.getFilm(filmId);
         film.addLikeToFilm(userId);
+        log.info("Лайк для фильма '{}' успешно добавлен", film.getName());
     }
 
     public void deleteLike(int filmId, int userId) {
         Film film = filmStorage.getFilm(filmId);
         if (film.getLikes().contains(userId)) {
             film.removeLikeFromFilm(userId);
+            log.info("Лайк для фильма '{}' успешно удален", film.getName());
         } else {
+            log.error("Указанный пользователь не ставил оценку данному фильму'{}'", film.getName());
             throw new NotFoundException("Указанный пользователь не ставил оценку данному фильму");
         }
     }
 
     public List<Film> getRating(int count) {
-        return filmStorage.findAllFilms().stream().sorted((film1, film2) ->
+        log.info("Рейтинг для фильмов успешно пересчитан");
+        return filmStorage.findAllFilms().stream()
+                .sorted((film1, film2) ->
                         film2.getRatingFromFilm() - film1.getRatingFromFilm())
-                .limit(count).collect(Collectors.toList());
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
-    public static boolean validate(Film film) throws ValidationException {
+    private static void validate(Film film) {
         if (film.getReleaseDate().isBefore(FILM_REALISE_DATE)) {
             log.info("Дата фильма должна быть не позже 28.12.1895");
             throw new ValidationException("Дата фильма должна быть не позже 28.12.1895");
         }
-        return false;
     }
 }
