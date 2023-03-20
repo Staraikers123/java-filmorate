@@ -31,35 +31,35 @@ public class UserController {
 
     @GetMapping
     public List<User> findAllUser() {
-        return userStorage.findAllUser();
+        return userStorage.findAllUsers();
     }
 
     @GetMapping("/{id}")
-    public User getUser(@Valid @PathVariable String id) {
-        return userStorage.getUser(Integer.parseInt(id));
+    public User getUser(@PathVariable int id) {
+        return userStorage.getUser(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@Valid @PathVariable String id, @Valid @PathVariable String friendId) {
-        userStorage.getUser(Integer.parseInt(id));
-        userStorage.getUser(Integer.parseInt(friendId));
-        userService.addFriend(Integer.parseInt(id), Integer.parseInt(friendId));
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+        userStorage.getUser(id);
+        userStorage.getUser(friendId);
+        userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@Valid @PathVariable String id, @Valid @PathVariable String friendId) {
-        userStorage.getUser(Integer.parseInt(id));
-        userStorage.getUser(Integer.parseInt(friendId));
-        userService.deleteFriend(Integer.parseInt(id), Integer.parseInt(friendId));
+    public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        userStorage.getUser(id);
+        userStorage.getUser(friendId);
+        userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getUserFriends(@Valid @PathVariable String id) {
-        return userService.getUserFriends(Integer.parseInt(id));
+    public List<User> getUserFriends(@PathVariable int id) {
+        return userService.getUserFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getMutualFriends(@Valid @PathVariable String id, @Valid @PathVariable String otherId) {
-        return userService.getMutualFriends(Integer.parseInt(id), Integer.parseInt(otherId));
+    public List<User> getMutualFriends(@PathVariable int id, @PathVariable int otherId) {
+        return userService.getMutualFriends(id, otherId);
     }
 }

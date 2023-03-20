@@ -8,7 +8,6 @@ import lombok.Data;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
-import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -29,4 +28,12 @@ public class User {
     private LocalDate birthday;
 
     private Set<Integer> friends;
+
+    public void addFriendToUser(int id) {
+        friends.add(id);
+    }
+
+    public void removeFriendFromUser(int id) {
+        friends.remove(id);
+    }
 }

@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.ValidationException;
-import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,19 +22,25 @@ public class UserService {
     }
 
     public void addFriend(int userId, int friendId) {
-        userStorage.getUser(userId).getFriends().add(friendId);
-        userStorage.getUser(friendId).getFriends().add(userId);
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
+        user.addFriendToUser(friendId);
+        friend.addFriendToUser(userId);
     }
 
     public void deleteFriend(int userId, int friendId) {
-        userStorage.getUser(userId).getFriends().remove(friendId);
-        userStorage.getUser(friendId).getFriends().remove(userId);
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
+        friend.removeFriendFromUser(userId);
+        user.removeFriendFromUser(friendId);
     }
 
     public List<User> getMutualFriends(int userId, int friendId) {
         List<User> mutualFriends = new ArrayList<>();
-        for (int id : userStorage.getUser(userId).getFriends()) {
-            if (userStorage.getUser(friendId).getFriends().contains(id)) {
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
+        for (int id : user.getFriends()) {
+            if (friend.getFriends().contains(id)) {
                 mutualFriends.add(userStorage.getUser(id));
             }
         }
@@ -43,10 +48,15 @@ public class UserService {
     }
 
     public List<User> getUserFriends(int userId) {
-        List<User> userFriends = new ArrayList<>();
-        return userStorage.findAllUser().stream()
+        return userStorage.findAllUsers().stream()
                 .filter(user -> user.getFriends().contains(userId))
                 .collect(Collectors.toList());
+    }
 
+    public static void validate(User user) throws ValidationException {
+        if (user.getName() == null || user.getName().equals("")) {
+            log.info("Имя для отображения может быть пустым - в таком случае будет использован логин");
+            user.setName(user.getLogin());
+        }
     }
 }

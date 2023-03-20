@@ -2,14 +2,10 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.filmorate.exception.FilmIdNotExist;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserIdNotExists;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.validators.FilmValidator;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +20,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Integer, Film> saveFilmStorage = new HashMap<>();
 
     @Override
-    public Film add(@Valid @RequestBody Film film) throws ValidationException {
-        FilmValidator.validate(film);
+    public Film add(Film film) {
+        FilmService.validate(film);
         if (saveFilmStorage.values().stream().noneMatch((saveFilm -> saveFilm.getName().equals(film.getName())))) {
             film.setId(id++);
             film.setLikes(new HashSet<>());
@@ -36,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film update(@Valid @RequestBody Film film) throws ValidationException {
+    public Film update(Film film) {
         if (saveFilmStorage.containsKey(film.getId())) {
             film.setLikes(new HashSet<>());
             saveFilmStorage.put(film.getId(), film);
@@ -49,7 +45,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findAllFilm() {
+    public List<Film> findAllFilms() {
         log.debug("Текущее количество фильмов: '{}'", saveFilmStorage.size());
         return new ArrayList<>(saveFilmStorage.values());
     }
@@ -57,8 +53,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film getFilm(int id) {
         if (!saveFilmStorage.containsKey(id)) {
-            throw new FilmIdNotExist(id);
+            log.error(String.format("Фильм с ИД %d не найден", id));
+            throw new NotFoundException(String.format("Фильм с ИД %d не найден", id));
         }
+        log.info(String.format("Фильм с ИД %d найден", id));
         return saveFilmStorage.get(id);
     }
 }

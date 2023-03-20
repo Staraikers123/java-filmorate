@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.validators.FilmValidator;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
@@ -25,7 +25,7 @@ public class FilmValidatorTest {
     public void shouldThrowExceptionWhenReleaseDateIsBefore28_12_1895() {
         film = builder.name("2 Fast 2 Furious").description("family")
                 .releaseDate(LocalDate.of(1895, Month.DECEMBER, 27)).duration(108).build();
-        assertThrows(ValidationException.class, () -> FilmValidator.validate(film));
+        assertThrows(ValidationException.class, () -> FilmService.validate(film));
     }
 
 
@@ -33,14 +33,14 @@ public class FilmValidatorTest {
     public void shouldNotThrowExceptionWhenReleaseDateIs28_12_1895() {
         film = builder.name("2 Fast 2 Furious").description("family")
                 .releaseDate(LocalDate.of(1895, Month.DECEMBER, 28)).duration(108).build();
-        assertDoesNotThrow(() -> FilmValidator.validate(film));
+        assertDoesNotThrow(() -> FilmService.validate(film));
     }
 
     @Test
     public void shouldSuccessfullyValidateCorrectFilm() {
         film = builder.name("2 Fast 2 Furious").description("family")
                 .releaseDate(LocalDate.of(2003, Month.JULY, 21)).duration(108).build();
-        assertDoesNotThrow(() -> FilmValidator.validate(film));
+        assertDoesNotThrow(() -> FilmService.validate(film));
     }
 
 
@@ -48,7 +48,7 @@ public class FilmValidatorTest {
     public void shouldNotThrowExceptionWhenDurationIsPositive() {
         film = builder.name("Fast and Furious").description("family")
                 .releaseDate(LocalDate.of(2003, Month.JULY, 21)).duration(1).build();
-        assertDoesNotThrow(() -> FilmValidator.validate(film));
+        assertDoesNotThrow(() -> FilmService.validate(film));
     }
 
 
