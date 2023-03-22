@@ -20,12 +20,12 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
-    public Film add(@Valid @RequestBody Film film) throws ValidationException {
+    public Film add(@Valid @RequestBody Film film) {
         return filmService.createFilm(film);
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film film) throws ValidationException {
+    public Film update(@Valid @RequestBody Film film) {
         return filmStorage.update(film);
     }
 

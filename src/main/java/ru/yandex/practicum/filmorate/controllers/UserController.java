@@ -20,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public User add(@Valid @RequestBody User user) throws ValidationException {
+    public User add(@Valid @RequestBody User user) {
         return userService.createUser(user);
     }
 
