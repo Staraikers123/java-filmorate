@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Builder
 @Data
@@ -23,4 +24,18 @@ public class Film {
 
     @Positive
     private int duration;
+
+    private Set<Integer> likes;
+
+    public void addLikeToFilm(int id) {
+        likes.add(id);
+    }
+
+    public void removeLikeFromFilm(int id) {
+        likes.remove(id);
+    }
+
+    public Integer getRatingFromFilm() {
+        return likes.size();
+    }
 }
