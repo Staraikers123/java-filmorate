@@ -6,12 +6,9 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.ValidationException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
-@Component
+@Component("inMemoryUserStorage")
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
     private int id = 1;
@@ -43,7 +40,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> findAllUsers() {
+    public Collection<User> findAllUsers() {
         log.debug("Текущее количество пользователей: '{}'", saveUserStorage.size());
         return new ArrayList<>(saveUserStorage.values());
     }
@@ -56,5 +53,31 @@ public class InMemoryUserStorage implements UserStorage {
         }
         log.info(String.format("Пользователь с ИД %d найден", id));
         return saveUserStorage.get(id);
+    }
+
+    @Override
+    public User delete(User user) {
+        if (saveUserStorage.containsKey(user.getId())) {
+            log.info(String.format("Пользователь с ИД %d найден", id));
+            return saveUserStorage.remove(user.getId());
+        } else {
+            log.error("Пользователь с ИД {} не найден", id);
+            throw new NotFoundException(String.format("Пользователь с ИД %d не найден", id));
+        }
+    }
+
+    @Override
+    public void makeFriends(int userId, int friendId) {
+        throw new NotFoundException("Не реализованно");
+    }
+
+    @Override
+    public void removeFriends(int userId, int friendId) {
+        throw new NotFoundException("Не реализованно");
+    }
+
+    @Override
+    public List<Integer> getUserFriendsById(int userId) {
+        throw new NotFoundException("Не реализованно");
     }
 }

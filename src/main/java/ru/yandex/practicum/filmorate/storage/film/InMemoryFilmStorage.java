@@ -6,15 +6,11 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.ValidationException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
-@Component
 @Slf4j
+@Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
-
     private int id = 1;
     private final HashMap<Integer, Film> saveFilmStorage = new HashMap<>();
 
@@ -50,12 +46,22 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilm(int id) {
+    public Optional<Film> getFilm(int id) {
         if (!saveFilmStorage.containsKey(id)) {
             log.error(String.format("Фильм с ИД %d не найден", id));
             throw new NotFoundException(String.format("Фильм с ИД %d не найден", id));
         }
         log.info(String.format("Фильм с ИД %d найден", id));
-        return saveFilmStorage.get(id);
+        return Optional.ofNullable(saveFilmStorage.get(id));
+    }
+
+    @Override
+    public Film delete(Film film) {
+        if (saveFilmStorage.containsKey(film.getId())) {
+            log.info("Фильм с id {} удален", film);
+            return saveFilmStorage.remove(film.getId());
+        } else {
+            throw new NotFoundException(String.format("Фильм с ИД %d не найден", film.getId()));
+        }
     }
 }
