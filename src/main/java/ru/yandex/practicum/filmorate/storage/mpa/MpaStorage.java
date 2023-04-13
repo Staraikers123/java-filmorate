@@ -4,7 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
+
+import java.util.Collection;
 
 @Component
 @Slf4j
@@ -15,16 +18,25 @@ public class MpaStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Mpa getMpa(int mpaId) {
-        String sql = "SELECT MPA_NAME FROM RATES_MPA WHERE MPA_ID = ?";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, mpaId);
+    public Collection<Mpa> getMpaAll() {
+        log.info("Рейтинги получены");
+        return jdbcTemplate.query("SELECT * FROM RATES_MPA",
+                ((rs, rowNum) -> new Mpa(
+                        rs.getInt("mpa_id"),
+                        rs.getString("mpa_name"))
+                ));
+    }
+
+    public Mpa getMpa(int id) {
+        SqlRowSet userRows =
+                jdbcTemplate.queryForRowSet("SELECT MPA_NAME FROM RATES_MPA WHERE MPA_ID = ?", id);
         if (userRows.next()) {
-            log.info("Получение рейтинга");
-            return new Mpa(mpaId,
-                    userRows.getString("mpa_name"));
-        } else {
-            log.info("Получение не найден");
-            return null;
-        }
+            Mpa mpa = new Mpa(
+                    id,
+                    userRows.getString("mpa_name")
+            );
+            log.info("Получение рейтинга {} ", mpa);
+            return mpa;
+        } else throw new NotFoundException("Не найдено рейтинга для этого id");
     }
 }

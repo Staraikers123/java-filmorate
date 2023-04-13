@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -57,16 +56,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getUserFriends(@PathVariable int id) {
+    public Collection<User> getUserFriends(@PathVariable int id) {
         log.info("Получение списка друзей для пользователя с id {}", id);
-        return userService.getMutualFriends(id);
+        return userService.getUserFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getMutualFriends(@PathVariable int id, @PathVariable int otherId) {
+    public Collection<User> getMutualFriends(@PathVariable int id, @PathVariable int otherId) {
         log.info("Получение общих друзей для пользователя с id {}", id);
-        List<User> first = userService.getMutualFriends(id);
-        List<User> second = userService.getMutualFriends(otherId);
-        return first.stream().filter(second::contains).collect(Collectors.toList());
+        return userService.getMutualFriends(id, otherId);
     }
 }

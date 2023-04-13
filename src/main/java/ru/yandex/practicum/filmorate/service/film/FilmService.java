@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikesStorage;
 
 import javax.validation.ValidationException;
@@ -22,13 +23,15 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final LikesStorage likesStorage;
+    private final GenreStorage genreStorage;
     private static final LocalDate FILM_REALISE_DATE = LocalDate.of(1895, Month.DECEMBER, 28);
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       LikesStorage likesStorage) {
+                       LikesStorage likesStorage, GenreStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.likesStorage = likesStorage;
+        this.genreStorage = genreStorage;
     }
 
     public Film createFilm(Film film) {
@@ -40,14 +43,20 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         filmStorage.update(film);
+        genreStorage.updateGenresOfFilm(film);
         Film filmReturn = filmStorage.getFilm(film.getId()).orElseThrow(
                 () -> new NotFoundException(String.format("Фильм с id %d не найден", film.getId())));
-        if (film.getGenres() == null) filmReturn.setGenres(null);
-        else if (film.getGenres().isEmpty()) filmReturn.setGenres(new HashSet<>());
+        if (film.getGenres() == null) {
+            filmReturn.setGenres(null);
+        } else if (film.getGenres().isEmpty()) {
+            filmReturn.setGenres(new HashSet<>());
+        }
+        log.info("Фильм с id {} обновлен", film.getId());
         return filmReturn;
     }
 
     public Collection<Film> getFilms() {
+        log.info("Фильмы получены");
         return filmStorage.findAllFilms();
     }
 

@@ -139,4 +139,20 @@ public class UserDbStorage implements UserStorage {
         log.info("Создание пользователя {}", login);
         return new User(id, email, login, name, birthday);
     }
+
+    @Override
+    public Collection<User> findFriends(int id) {
+        log.info("Поиск друзей");
+        String sql = "SELECT FRIEND_ID, EMAIL, LOGIN, NAME, BIRTHDAY FROM FRIENDSHIPS JOIN USERS U " +
+                "on FRIENDSHIPS.FRIEND_ID = U.USER_ID WHERE " +
+                "FRIENDSHIPS.USER_ID = ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new User(
+                        rs.getInt("friend_id"),
+                        rs.getString("email"),
+                        rs.getString("login"),
+                        rs.getString("name"),
+                        rs.getDate("birthday").toLocalDate()),
+                id
+        );
+    }
 }

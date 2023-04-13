@@ -8,8 +8,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -47,18 +47,16 @@ public class UserService {
         log.info("Друг для пользователя '{}' успешно удален", user.getName());
     }
 
-    public List<User> getMutualFriends(int userId) {
+    public Collection<User> getUserFriends(int userId) {
         log.info("Друзья обновлены");
-        List<User> friends = new ArrayList<>();
-        List<Integer> friendsIds = userStorage.getUserFriendsById(userId);
-        if (friendsIds == null) {
-            return friends;
-        }
-        for (int friendIds : friendsIds) {
-            User friend = userStorage.getUser(friendIds);
-            friends.add(friend);
-        }
-        return friends;
+        return userStorage.findFriends(userId);
+    }
+
+    public Collection<User> getMutualFriends(int id, int otherId) {
+        Collection<User> first = getUserFriends(id);
+        Collection<User> second = getUserFriends(otherId);
+        log.info("Друзья получены");
+        return first.stream().filter(second::contains).collect(Collectors.toList());
     }
 
     private static void validate(User user) {

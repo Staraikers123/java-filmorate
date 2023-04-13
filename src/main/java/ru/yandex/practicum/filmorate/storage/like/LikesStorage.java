@@ -6,29 +6,25 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Component
 @Slf4j
 public class LikesStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreStorage genreStorage;
-    private final MpaStorage mpaStorage;
     private final FilmDbStorage filmDbStorage;
     private final UserDbStorage userDbStorage;
 
     public LikesStorage(JdbcTemplate jdbcTemplate,
-                        GenreStorage genreStorage,
-                        MpaStorage mpaStorage,
                         FilmDbStorage filmDbStorage, UserDbStorage userDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
-        this.genreStorage = genreStorage;
-        this.mpaStorage = mpaStorage;
         this.filmDbStorage = filmDbStorage;
         this.userDbStorage = userDbStorage;
     }
@@ -58,22 +54,35 @@ public class LikesStorage {
     }
 
     public List<Film> getPopular(int count) {
-        String sql = "SELECT FILMS.FILM_ID, NAME, DESCRIPTION, RELEASEDATE, DURATION, RATE_ID , " +
-                "COUNT(L.USER_ID) as RATING FROM FILMS LEFT JOIN LIKES L on FILMS.FILM_ID = L.FILM_ID " +
+        String sql = "SELECT FILMS.FILM_ID, FILMS.NAME, FILMS.DESCRIPTION, FILMS.RELEASEDATE, FILMS.DURATION, FILMS.RATE_ID , " +
+                "COUNT(L.USER_ID) as RATING, R.MPA_NAME as MPA_NAME " +
+                "FROM FILMS " +
+                "LEFT JOIN LIKES as L on FILMS.FILM_ID = L.FILM_ID " +
+                "LEFT JOIN RATES_MPA as R ON FILMS.RATE_ID = R.MPA_ID " +
                 "GROUP BY FILMS.FILM_ID " +
                 "ORDER BY RATING DESC LIMIT ?";
-        System.out.println(count);
         List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
                 rs.getInt("film_id"),
                 rs.getString("name"),
                 rs.getString("description"),
                 rs.getDate("releaseDate").toLocalDate(),
                 rs.getInt("duration"),
-                genreStorage.getFilmGenres(rs.getInt("film_id")),
-                mpaStorage.getMpa(rs.getInt("rate_id")),
+                FindfilmGenres(rs.getInt("film_id")),
+                new Mpa(rs.getInt("rate_id"), rs.getString("mpa_name")),
                 rs.getInt("rating")
         ), count);
         log.info("Получение списка популярных фильмов");
         return films;
+    }
+
+    private Set<Genre> FindfilmGenres(int filmId) {
+        Set<Genre> genres = new TreeSet<>();
+        String sql = "SELECT * FROM GENRES AS g JOIN FILM_GENRES AS fg ON g.genre_id = fg.genre_id WHERE fg.film_id = ?";
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, filmId);
+        while (rows.next()) {
+            genres.add(new Genre(rows.getInt("genre_id"), rows.getString("genre")));
+        }
+        log.info("Данные по жанрам получены");
+        return genres;
     }
 }

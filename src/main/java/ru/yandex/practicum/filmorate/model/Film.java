@@ -43,6 +43,15 @@ public class Film {
         this.duration = duration;
     }
 
+    public Film(Integer id, String name, String description, LocalDate releaseDate, int duration, Mpa mpa) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+    }
+
     public Film(Integer id, String name, String description, LocalDate releaseDate, int duration,
                 Set<Genre> genres, Mpa mpa) {
         this.id = id;
@@ -65,6 +74,7 @@ public class Film {
         this.mpa = mpa;
         this.rating = rating;
     }
+
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

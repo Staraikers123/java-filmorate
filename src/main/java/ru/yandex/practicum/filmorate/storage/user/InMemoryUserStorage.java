@@ -80,4 +80,9 @@ public class InMemoryUserStorage implements UserStorage {
     public List<Integer> getUserFriendsById(int userId) {
         throw new NotFoundException("Не реализованно");
     }
+
+    @Override
+    public Collection<User> findFriends(int id) {
+        throw new NotFoundException("Не реализованно");
+    }
 }
