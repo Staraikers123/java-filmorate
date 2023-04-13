@@ -67,7 +67,7 @@ public class LikesStorage {
                 rs.getString("description"),
                 rs.getDate("releaseDate").toLocalDate(),
                 rs.getInt("duration"),
-                FindfilmGenres(rs.getInt("film_id")),
+                findFilmGenres(rs.getInt("film_id")),
                 new Mpa(rs.getInt("rate_id"), rs.getString("mpa_name")),
                 rs.getInt("rating")
         ), count);
@@ -75,7 +75,7 @@ public class LikesStorage {
         return films;
     }
 
-    private Set<Genre> FindfilmGenres(int filmId) {
+    private Set<Genre> findFilmGenres(int filmId) {
         Set<Genre> genres = new TreeSet<>();
         String sql = "SELECT * FROM GENRES AS g JOIN FILM_GENRES AS fg ON g.genre_id = fg.genre_id WHERE fg.film_id = ?";
         SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, filmId);
