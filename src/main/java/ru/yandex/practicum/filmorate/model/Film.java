@@ -28,7 +28,7 @@ public class Film {
     private int duration;
 
     private Set<Integer> likes = new TreeSet<>();
-    private Set<Genre> genres;
+    private Set<Genre> genres = new TreeSet<>();
 
     @NotNull
     private Mpa mpa;

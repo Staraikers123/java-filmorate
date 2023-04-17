@@ -55,7 +55,7 @@ public class FilmService {
         return filmReturn;
     }
 
-    public Collection<Film> getFilms() {
+    public List<Film> getFilms() {
         log.info("Фильмы получены");
         return filmStorage.findAllFilms();
     }

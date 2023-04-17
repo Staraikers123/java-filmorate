@@ -49,7 +49,6 @@ public class FilmDbStorage implements FilmStorage {
                     ps.setInt(1, genres.get(i).getId());
                     ps.setInt(2, film.getId());
                 }
-
                 @Override
                 public int getBatchSize() {
                     return genres.size();
@@ -86,11 +85,44 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    @Override
+    /*@Override
     public Collection<Film> findAllFilms() {
-        String sql = "SELECT * FROM FILMS";
+        String sql = "SELECT * FROM FILMS JOIN FILM_GENRES AS FM ON FM.FILM_ID = FILMS.FILM_ID JOIN GENRES AS G ON FM.GENRE_ID = G.GENRE_ID";
         List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
+        log.info("Получение фильмов");
         return films;
+    }*/
+
+    @Override
+    public List<Film> findAllFilms() {
+        String sql = "SELECT * FROM FILMS LEFT JOIN FILM_GENRES AS FM ON FILMS.film_id = FM.film_id" +
+                " LEFT JOIN GENRES AS G ON FM.genre_id = G.genre_id";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
+        Map<Integer, Film> filmMap = new HashMap<>();
+        List<Genre> genres = new ArrayList<>();
+        while (rowSet.next()) {
+            Film film = new Film();
+            film.setId(rowSet.getInt("film_id"));
+            film.setName(rowSet.getString("name"));
+            film.setDescription(rowSet.getString("description"));
+            film.setReleaseDate(rowSet.getDate("releaseDate").toLocalDate());
+            film.setDuration(rowSet.getInt("duration"));
+            film.setMpa(mpaStorage.getMpa(rowSet.getInt("rate_id")));
+            filmMap.put(film.getId(), film);
+            if (rowSet.getString("genre") != null) {
+                Genre genre = new Genre();
+                genre.setFilmId(rowSet.getInt("film_id"));
+                genre.setId(rowSet.getInt("genre_id"));
+                genre.setName(rowSet.getString("genre"));
+                genres.add(genre);
+            }
+
+        }
+        genres.forEach(genre -> {
+            filmMap.get(genre.getId()).getGenres().add(genre);
+        });
+        log.info("Получение фильмов");
+        return new ArrayList<>(filmMap.values());
     }
 
     @Override
@@ -140,13 +172,14 @@ public class FilmDbStorage implements FilmStorage {
         return userRows.next();
     }
 
-    private Film makeFilm(ResultSet rs) throws SQLException {
+   /* private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
         film.setId(rs.getInt("film_id"));
         film.setName(rs.getString("name"));
         film.setDescription(rs.getString("description"));
         film.setReleaseDate(rs.getDate("releaseDate").toLocalDate());
         film.setDuration(rs.getInt("duration"));
+        Set<Genre> genres = new TreeSet<>();
         String sql1 = "SELECT * FROM GENRES AS g JOIN FILM_GENRES AS fg ON g.genre_id = fg.genre_id" +
                 " WHERE film_id=?";
         Set<Genre> genres = new TreeSet<>();
@@ -159,8 +192,16 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             film.setGenres(Collections.emptySet());
         }
+
+        if (rs.getString("genre_id") != null) {
+            Genre genre = new Genre();
+            genre.setId(rs.getInt("film_id"));
+            genre.setId(rs.getInt("genre_id"));
+            genre.setName(rs.getString("genre"));
+            genres.add(genre);
+        }
         Mpa mpa = mpaStorage.getMpa(rs.getInt("rate_id"));
         film.setMpa(mpa);
         return film;
-    }
+    }*/
 }
