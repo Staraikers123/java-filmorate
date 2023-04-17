@@ -11,8 +11,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -22,11 +24,14 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
+    public final MpaStorage mpaStorage;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate,
-                         GenreStorage genreStorage) {
+                         GenreStorage genreStorage,
+                         MpaStorage mpaStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreStorage = genreStorage;
+        this.mpaStorage = mpaStorage;
     }
 
     @Override
@@ -83,19 +88,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAllFilms() {
-        String sql = "SELECT * " +
-                "FROM FILMS " +
-                "LEFT JOIN RATES_MPA as R ON FILMS.RATE_ID = R.MPA_ID ";
-        log.info("Получение списка фильмов");
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
-                rs.getInt("film_id"),
-                rs.getString("name"),
-                rs.getString("description"),
-                rs.getDate("releaseDate").toLocalDate(),
-                rs.getInt("duration"),
-                findFilmGenres(rs.getInt("film_id")),
-                new Mpa(rs.getInt("rate_id"), rs.getString("mpa_name"))
-        ));
+        String sql = "SELECT * FROM FILMS";
+        List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
+        return films;
     }
 
     @Override
@@ -145,14 +140,27 @@ public class FilmDbStorage implements FilmStorage {
         return userRows.next();
     }
 
-    private Set<Genre> findFilmGenres(int filmId) {
+    private Film makeFilm(ResultSet rs) throws SQLException {
+        Film film = new Film();
+        film.setId(rs.getInt("film_id"));
+        film.setName(rs.getString("name"));
+        film.setDescription(rs.getString("description"));
+        film.setReleaseDate(rs.getDate("releaseDate").toLocalDate());
+        film.setDuration(rs.getInt("duration"));
+        String sql1 = "SELECT * FROM GENRES AS g JOIN FILM_GENRES AS fg ON g.genre_id = fg.genre_id" +
+                " WHERE film_id=?";
         Set<Genre> genres = new TreeSet<>();
-        String sql = "SELECT * FROM GENRES AS g JOIN FILM_GENRES AS fg ON g.genre_id = fg.genre_id WHERE fg.film_id = ?";
-        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql, filmId);
+        SqlRowSet rows = jdbcTemplate.queryForRowSet(sql1, film.getId());
         while (rows.next()) {
             genres.add(new Genre(rows.getInt("genre_id"), rows.getString("genre")));
         }
-        log.info("Данные по жанрам получены");
-        return genres;
+        if (genres.size() != 0) {
+            film.setGenres(genres);
+        } else {
+            film.setGenres(Collections.emptySet());
+        }
+        Mpa mpa = mpaStorage.getMpa(rs.getInt("rate_id"));
+        film.setMpa(mpa);
+        return film;
     }
 }
