@@ -11,7 +11,10 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Component
 @Slf4j
